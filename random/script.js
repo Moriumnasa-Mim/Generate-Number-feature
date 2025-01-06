@@ -9,6 +9,11 @@ function saveToLocalStorage(numbers) {
   localStorage.setItem('generatedNumbers', numbers);
 }
 
+// Common function to display alerts
+function showAlert(message) {
+  alert(message);
+}
+
 // Generate random numbers
 document.getElementById("generate-btn").addEventListener("click", function () {
   const min = parseInt(document.getElementById("min").value, 10);
@@ -17,134 +22,66 @@ document.getElementById("generate-btn").addEventListener("click", function () {
   const digitCount = parseInt(document.getElementById("digit-count").value, 10);
   const resultDiv = document.getElementById("result");
   const copyBtn = document.getElementById("copy-btn");
-  const imagesDiv = document.getElementById("images");
 
-  // Clear previous results and images
-  imagesDiv.innerHTML = "";
-  copyBtn.style.display = "none";
-
-  // Validate input
   if (isNaN(min) || isNaN(max) || isNaN(limit) || limit <= 0 || isNaN(digitCount) || digitCount <= 0) {
-    resultDiv.textContent = "Please enter valid numbers.";
-    return;
+    return showAlert("Please enter valid numbers.");
   }
-  if (min >= max) {
-    resultDiv.textContent = "Minimum value must be less than maximum value.";
-    return;
-  }
-  if (limit > max - min + 1) {
-    resultDiv.textContent = `Cannot generate ${limit} unique numbers in the given range.`;
-    return;
-  }
+  if (min >= max) return showAlert("Minimum value must be less than maximum value.");
+  if (limit > max - min + 1) return showAlert(`Cannot generate ${limit} unique numbers in the given range.`);
 
-  const numbers = new Set();
-  while (numbers.size < limit) {
+  const numbers = [];
+  while (numbers.length < limit) {
     const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-    if (randomNum.toString().length === digitCount) {
-      numbers.add(randomNum);
+    if (randomNum.toString().length === digitCount && !numbers.includes(randomNum)) {
+      numbers.push(randomNum);
     }
   }
 
-  const resultText = [...numbers].join(", ");
+  const resultText = numbers.join(", ");
   resultDiv.textContent = `Unique Random Numbers: ${resultText}`;
-  copyBtn.style.display = "block";
-
-  // Store the result for copying
+  copyBtn.style.display = "inline";
   copyBtn.dataset.numbers = resultText;
-
-  // Save result to local storage
   saveToLocalStorage(resultText);
 
-  // Display uploaded logo and image
-  const logoFile = document.getElementById("logo-upload").files[0];
-  const imageFile = document.getElementById("image-upload").files[0];
-
-  if (logoFile) {
-    const logoImg = document.createElement("img");
-    logoImg.src = URL.createObjectURL(logoFile);
-    imagesDiv.appendChild(logoImg);
-  }
-
-  if (imageFile) {
-    const imageImg = document.createElement("img");
-    imageImg.src = URL.createObjectURL(imageFile);
-    imagesDiv.appendChild(imageImg);
-  }
+  // সাউন্ড প্লে
+  const utterance = new SpeechSynthesisUtterance(`The generated numbers are ${resultText}`);
+  utterance.lang = "en-US";
+  utterance.pitch = 1;
+  utterance.rate = 1;
+  speechSynthesis.speak(utterance);
 });
 
-// Copy numbers to clipboard
+// Copy numbers
 document.getElementById("copy-btn").addEventListener("click", function () {
   const numbers = this.dataset.numbers;
-
-  if (numbers) {
-    navigator.clipboard.writeText(numbers).then(() => {
-      alert("Numbers copied to clipboard!");
-    }).catch(err => {
-      console.error("Could not copy text: ", err);
-    });
-  }
+  navigator.clipboard.writeText(numbers)
+    .then(() => showAlert("Numbers copied to clipboard!"))
+    .catch(err => console.error("Could not copy text: ", err));
 });
 
-// Save result as text file
+// Save as file
 document.getElementById("save-btn").addEventListener("click", function () {
   const numbers = document.getElementById("copy-btn").dataset.numbers;
-  if (numbers) {
-    const blob = new Blob([numbers], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "random_numbers.txt";
-    link.click();
-  } else {
-    alert("Please generate numbers first.");
-  }
+  if (!numbers) return showAlert("Please generate numbers first.");
+
+  const blob = new Blob([numbers], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "random_numbers.txt";
+  link.click();
 });
 
-// Share result (basic share functionality for mobile browsers)
+// Share numbers
 document.getElementById("share-btn").addEventListener("click", function () {
   const numbers = document.getElementById("copy-btn").dataset.numbers;
-  if (numbers) {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Random Numbers',
-        text: `Here are your random numbers: ${numbers}`,
-        url: window.location.href
-      }).catch(console.error);
-    } else {
-      alert("Your browser doesn't support sharing.");
-    }
-  } else {
-    alert("Please generate numbers first.");
-  }
-});
+  if (!numbers) return showAlert("Please generate numbers first.");
 
-// Display the uploaded logo preview
-document.getElementById("logo-upload").addEventListener("change", function () {
-  const logoFile = this.files[0];
-  const logoPreview = document.getElementById("logo-preview");
-  if (logoFile) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      logoPreview.src = e.target.result;
-      logoPreview.style.display = "block";
-    };
-    reader.readAsDataURL(logoFile);
+  if (navigator.share) {
+    navigator.share({
+      title: "Random Numbers",
+      text: `Here are your random numbers: ${numbers}`,
+    }).catch(console.error);
   } else {
-    logoPreview.style.display = "none";
-  }
-});
-
-// Display the uploaded image preview
-document.getElementById("image-upload").addEventListener("change", function () {
-  const imageFile = this.files[0];
-  const imagePreview = document.getElementById("image-preview");
-  if (imageFile) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      imagePreview.src = e.target.result;
-      imagePreview.style.display = "block";
-    };
-    reader.readAsDataURL(imageFile);
-  } else {
-    imagePreview.style.display = "none";
+    showAlert("Your browser doesn't support sharing.");
   }
 });
