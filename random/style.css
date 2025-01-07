@@ -24,14 +24,16 @@ body {
     background-color: rgba(255, 255, 255, 0.8); 
     padding: 20px;
     margin: 20px auto;
-    border-radius: 10px; 
-    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2), -10px -10px 20px rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(10px); 
     width: 90%;
     max-width: 400px;
     border: 1px solid rgba(255, 255, 255, 0.6); 
     font-family: Arial, sans-serif;
     font-size: 16px;
+
+    border-radius: 20px;
+    box-sizing: border-box;
+    box-shadow: 14px 14px 20px #cbced1, -14px -14px 20px white;
 }
 
   
@@ -104,18 +106,17 @@ body {
   label {
     display: block;
     margin-bottom: 8px;
-    font-size: 16px;
-    font-weight: bold;
   }
   
   input {
     width: 90%;
     padding: 10px;
-    font-size: 16px;
+    font-size: 14px;
     border: 1px solid #ccc;
-    border-radius: 15px;
-    margin: 5px;
-    box-shadow: inset 4px 4px 4px #a3b1c6, inset -4px -4px 4px #ffffff;
+    border-radius: 50px;
+    box-shadow: inset 6px 6px 6px #cbced1, inset -6px -6px 6px #ffffff;
+    background: #ecf0f3;
+    padding-left: 20px;
   }
 
   input[type="file"] {
@@ -164,7 +165,7 @@ body {
   
   .actions .copy {
     flex: 1;
-    text-align: left;
+    text-align: center;
   }
   
   .actions .save {
@@ -174,7 +175,7 @@ body {
   
   .actions .share {
     flex: 1;
-    text-align: right;
+    text-align: center;
   }
  
   
